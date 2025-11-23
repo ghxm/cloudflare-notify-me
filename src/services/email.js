@@ -23,17 +23,19 @@ export async function sendEmail({ to, subject, body, env }) {
     return await sendViaGmailAPI(emailData, env);
   }
 
-  // Method 4: Development/testing mode
-  console.log('Email would be sent:', {
-    to: emailData.to,
-    subject: emailData.subject,
-    body: emailData.text
-  });
-  
-  return {
-    success: true,
-    messageId: `dev_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
-  };
+  // No email service configured - throw error
+  const missingConfigs = [];
+  if (!env.FASTMAIL_API_TOKEN || !env.FASTMAIL_USERNAME) {
+    missingConfigs.push('Fastmail (missing FASTMAIL_API_TOKEN or FASTMAIL_USERNAME)');
+  }
+  if (!env.EMAIL_SERVICE_URL || !env.EMAIL_API_KEY) {
+    missingConfigs.push('Email API (missing EMAIL_SERVICE_URL or EMAIL_API_KEY)');
+  }
+  if (!env.SMTP_HOST || !env.SMTP_USER || !env.SMTP_PASS) {
+    missingConfigs.push('Gmail API (missing SMTP_HOST, SMTP_USER, or SMTP_PASS)');
+  }
+
+  throw new Error(`No email service configured. Available options: ${missingConfigs.join(', ')}`);
 }
 
 async function sendViaFastmailJMAP(emailData, env) {
