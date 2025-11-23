@@ -2,72 +2,44 @@
 
 A personal notification hub running on Cloudflare Workers that accepts POST requests and dispatches notifications to your configured contact channels.
 
-## Features
-
-- **Single Endpoint**: One URL to send notifications from anywhere
-- **Contact Labels**: Use simple labels like 'personal', 'work', 'urgent' instead of raw addresses
-- **Contact Groups**: Send to multiple contacts with group labels like 'all', 'important'
-- **Optional Authentication**: Secure your endpoint with a token
+- Single endpoint for notifications from anywhere
+- Contact labels ('personal', 'work', 'urgent') instead of raw addresses  
+- Contact groups ('all', 'important') for multiple recipients
+- Optional token authentication
 
 ## Quick Start
 
-1. **Configure:**
-   ```bash
-   npm install -g wrangler
-   # Copy .dev.vars and add your configuration
-   ```
+```bash
+npm install -g wrangler
+# Configure .dev.vars with your settings
+wrangler deploy
+```
 
-2. **Deploy:**
-   ```bash
-   wrangler deploy
-   ```
-
-3. **Send a notification:**
-   ```bash
-   curl -X POST https://your-worker.your-subdomain.workers.dev \
-     -H "Content-Type: application/json" \
-     -H "Authorization: your-auth-token" \
-     -d '{
-       "subject": "Test Alert",
-       "message": "This is a test notification from my monitoring system.",
-       "recipients": ["personal"]
-     }'
-   ```
+Send a notification:
+```bash
+curl -X POST https://your-worker.workers.dev \
+  -H "Content-Type: application/json" \
+  -H "Authorization: your-auth-token" \
+  -d '{"subject": "Test Alert", "message": "Hello from my system", "recipients": ["personal"]}'
+```
 
 ## Configuration
 
 ### Environment Variables
 
-For local development, configure `.dev.vars`. For production, set these in Cloudflare Workers dashboard.
+Configure in `.dev.vars` for local development, or Cloudflare Workers dashboard for production.
 
-#### Authentication (Optional)
-- `AUTH_ENABLED`: Set to "true" to enable token authentication
-- `AUTH_TOKEN`: Your secret authentication token
+#### Email Service (choose one)
+- `FASTMAIL_API_TOKEN` + `FASTMAIL_USERNAME`: Fastmail JMAP
+- `EMAIL_SERVICE_URL` + `EMAIL_API_KEY`: Resend, SendGrid, etc.
 
-#### Email Service
-Choose one email service option:
+#### Contacts
+- `CONTACT_PERSONAL`, `CONTACT_WORK`, `CONTACT_URGENT`: Individual email addresses
+- `CONTACTS_CONFIG`: JSON string for production (see .dev.vars example)
 
-**Fastmail JMAP (Recommended)**
-- `FASTMAIL_API_TOKEN`: Your Fastmail API token (from Settings > Privacy & Security > Integrations)
-- `FASTMAIL_USERNAME`: Your Fastmail email address for authentication
-- `FROM_EMAIL` (optional): Override the sending email address
-
-**Email Service API**
-- `EMAIL_SERVICE_URL`: API endpoint (e.g., https://api.resend.com/emails)
-- `EMAIL_API_KEY`: Your API key
-
-**Gmail API**
-- `GMAIL_ACCESS_TOKEN`: OAuth access token for Gmail API
-
-#### Contact Configuration
-
-**Individual Contact Variables (for .dev.vars)**
-- `CONTACT_PERSONAL`: Personal email address
-- `CONTACT_WORK`: Work email address
-- `CONTACT_URGENT`: Urgent notifications email
-
-**Production Contact Configuration**
-- `CONTACTS_CONFIG`: JSON string containing all contact configuration (see example in .dev.vars)
+#### Authentication (optional)
+- `AUTH_ENABLED`: Set to "true" to enable token auth
+- `AUTH_TOKEN`: Your secret token
 
 ### Contact Labels
 
@@ -182,9 +154,8 @@ fi
 ## Security Notes
 
 - Keep your `AUTH_TOKEN` secure and use a strong, random value
-- Use environment variables or Cloudflare's secret storage for sensitive data
+- For production security, use Cloudflare Access instead of token authentication
 - Consider IP allowlisting if you only need to trigger notifications from specific sources
-- The endpoint supports CORS but you may want to restrict origins for browser-based usage
 
 ## Roadmap
 
