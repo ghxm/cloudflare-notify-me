@@ -8,11 +8,15 @@ function getContactDirectory(env) {
   // Method 1: Full JSON config (for Cloudflare Workers production)
   if (env.CONTACTS_CONFIG) {
     try {
-      const config = JSON.parse(env.CONTACTS_CONFIG);
-      console.log('Successfully parsed CONTACTS_CONFIG:', config);
+      // Check if it's already an object (auto-parsed by Cloudflare)
+      const config = typeof env.CONTACTS_CONFIG === 'string' 
+        ? JSON.parse(env.CONTACTS_CONFIG) 
+        : env.CONTACTS_CONFIG;
+      console.log('Successfully loaded CONTACTS_CONFIG:', config);
       return config;
     } catch (error) {
       console.error('Failed to parse CONTACTS_CONFIG:', error);
+      console.error('CONTACTS_CONFIG type:', typeof env.CONTACTS_CONFIG);
       console.error('CONTACTS_CONFIG value:', env.CONTACTS_CONFIG);
     }
   }
