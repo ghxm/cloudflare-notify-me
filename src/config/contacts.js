@@ -1,0 +1,85 @@
+// Load contact directory from environment variables
+function getContactDirectory(env) {
+  // Method 1: Full JSON config (for Cloudflare Workers production)
+  if (env.CONTACTS_CONFIG) {
+    try {
+      return JSON.parse(env.CONTACTS_CONFIG);
+    } catch (error) {
+      console.error('Failed to parse CONTACTS_CONFIG:', error);
+    }
+  }
+  
+  // Method 2: Individual env vars (for local development)
+  return {
+    email: {
+      'personal': {
+        address: env.CONTACT_PERSONAL || env.FASTMAIL_USERNAME || 'personal@example.com',
+        name: 'Personal'
+      },
+      'work': {
+        address: env.CONTACT_WORK || 'work@example.com',
+        name: 'Work'
+      },
+      'urgent': {
+        address: env.CONTACT_URGENT || 'urgent@example.com',
+        name: 'Urgent'
+      }
+    },
+    
+    sms: {
+      'mobile': {
+        number: env.CONTACT_MOBILE || '+1234567890',
+        name: 'Mobile'
+      }
+    },
+    
+    groups: {
+      'all': ['personal', 'work'],
+      'important': ['work', 'urgent'],
+      'family': ['personal']
+    }
+  };
+}
+
+// Resolve contact labels to actual addresses/numbers
+export function resolveContacts(recipients, env) {
+  const contactDirectory = getContactDirectory(env);
+  const resolvedContacts = {
+    email: [],
+    sms: []
+  };
+
+  for (const recipient of recipients) {
+    // Check if it's a group
+    if (contactDirectory.groups && contactDirectory.groups[recipient]) {
+      const groupMembers = contactDirectory.groups[recipient];
+      for (const member of groupMembers) {
+        addContact(member, resolvedContacts, contactDirectory);
+      }
+    } else {
+      addContact(recipient, resolvedContacts, contactDirectory);
+    }
+  }
+
+  return resolvedContacts;
+}
+
+function addContact(label, resolvedContacts, contactDirectory) {
+  // Check email contacts
+  if (contactDirectory.email && contactDirectory.email[label]) {
+    const contact = contactDirectory.email[label];
+    const address = contact.address;
+    if (address && !resolvedContacts.email.includes(address)) {
+      resolvedContacts.email.push(address);
+    }
+  }
+  
+  // Check SMS contacts
+  if (contactDirectory.sms && contactDirectory.sms[label]) {
+    const contact = contactDirectory.sms[label];
+    const number = contact.number;
+    if (number && !resolvedContacts.sms.includes(number)) {
+      resolvedContacts.sms.push(number);
+    }
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "name": "cloudflare-notify-me",
+  "version": "0.0.0",
+  "main": "src/index.js",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": ["cloudflare"],
+  "author": "",
+  "license": "ISC",
+  "description": "Personal notification hub on Cloudflare Workers for centralized alert dispatching",
+  "devDependencies": {
+    "wrangler": "^3.0.0"
+  }
+}
