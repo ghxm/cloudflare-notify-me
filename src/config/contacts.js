@@ -1,11 +1,19 @@
 // Load contact directory from environment variables
 function getContactDirectory(env) {
+  // Debug logging
+  console.log('CONTACTS_CONFIG exists:', !!env.CONTACTS_CONFIG);
+  console.log('CONTACT_PERSONAL:', env.CONTACT_PERSONAL);
+  console.log('FASTMAIL_USERNAME:', env.FASTMAIL_USERNAME);
+  
   // Method 1: Full JSON config (for Cloudflare Workers production)
   if (env.CONTACTS_CONFIG) {
     try {
-      return JSON.parse(env.CONTACTS_CONFIG);
+      const config = JSON.parse(env.CONTACTS_CONFIG);
+      console.log('Successfully parsed CONTACTS_CONFIG:', config);
+      return config;
     } catch (error) {
       console.error('Failed to parse CONTACTS_CONFIG:', error);
+      console.error('CONTACTS_CONFIG value:', env.CONTACTS_CONFIG);
     }
   }
   
