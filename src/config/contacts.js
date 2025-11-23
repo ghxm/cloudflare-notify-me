@@ -21,23 +21,16 @@ function getContactDirectory(env) {
   return {
     email: {
       'personal': {
-        address: env.CONTACT_PERSONAL || env.FASTMAIL_USERNAME || 'personal@example.com',
+        address: env.CONTACT_PERSONAL || env.FASTMAIL_USERNAME,
         name: 'Personal'
       },
       'work': {
-        address: env.CONTACT_WORK || 'work@example.com',
+        address: env.CONTACT_WORK,
         name: 'Work'
       },
       'urgent': {
-        address: env.CONTACT_URGENT || 'urgent@example.com',
+        address: env.CONTACT_URGENT,
         name: 'Urgent'
-      }
-    },
-    
-    sms: {
-      'mobile': {
-        number: env.CONTACT_MOBILE || '+1234567890',
-        name: 'Mobile'
       }
     },
     
@@ -77,17 +70,9 @@ function addContact(label, resolvedContacts, contactDirectory) {
   if (contactDirectory.email && contactDirectory.email[label]) {
     const contact = contactDirectory.email[label];
     const address = contact.address;
-    if (address && !resolvedContacts.email.includes(address)) {
+    // Only add if address exists and doesn't contain example.com
+    if (address && !address.includes('example.com') && !resolvedContacts.email.includes(address)) {
       resolvedContacts.email.push(address);
-    }
-  }
-  
-  // Check SMS contacts
-  if (contactDirectory.sms && contactDirectory.sms[label]) {
-    const contact = contactDirectory.sms[label];
-    const number = contact.number;
-    if (number && !resolvedContacts.sms.includes(number)) {
-      resolvedContacts.sms.push(number);
     }
   }
 }
